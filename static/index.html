@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<head>
+</head>
+<body>
+<h1>prefetch-doc test</h1>
+<input type="button" id="link-prerender" value="Append link rel=prerender"><br>
+<input type="button" id="link-preload" value="Append link rel=preload (doesn't work)"><br>
+<input type="button" id="link-prefetch" value="Append link rel=prefetch"><br>
+<a id="nav">navigate!!!</a>
+<script>
+const url = new URL(document.URL)
+const crossorigin = url.search === '?crossorigin'
+const targetBase = crossorigin ? "http://localhost:8000" : ""
+
+const targetHref = targetBase+"/target"+Math.ceil(Math.random() * 10000)
+
+function serverLog(text) {
+	fetch("/target?"+text)
+}
+
+const nav = document.querySelector('#nav')
+nav.href = targetHref;
+nav.innerText = "navigate to "+targetHref;
+
+document.querySelector("#link-prerender").addEventListener('click', () => {
+	serverLog("prerender")
+
+	const link = document.createElement('link')
+	link.rel = 'prerender'
+	link.href = targetHref
+	document.querySelector('head').appendChild(link)
+})
+
+document.querySelector("#link-preload").addEventListener('click', () => {
+	serverLog("preload")
+
+	const link = document.createElement('link')
+	link.rel = 'preload'
+	link.href = targetHref
+	link.as = 'document'
+	document.querySelector('head').appendChild(link)
+})
+
+document.querySelector("#link-prefetch").addEventListener('click', () => {
+	serverLog("prefetch")
+
+	const link = document.createElement('link')
+	link.rel = 'prefetch'
+	link.href = targetHref
+	link.as = 'document'
+	document.querySelector('head').appendChild(link)
+})
+</script>
